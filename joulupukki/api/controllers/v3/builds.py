@@ -132,8 +132,14 @@ class LaunchBuildController(rest.RestController):
         build.username = user.username
         build.project_name = project.name
         build.create()
-        carrier = Carrier(pecan.conf.rabbit_server, pecan.conf.rabbit_port,
-                          pecan.conf.rabbit_db)
+        carrier = Carrier(
+            pecan.conf.rabbit_server,
+            pecan.conf.rabbit_port,
+            pecan.conf.rabbit_user,
+            pecan.conf.rabbit_password,
+            pecan.conf.rabbit_vhost,
+            pecan.conf.rabbit_db
+        )
         carrier.declare_queue('builds.queue')
         # carrier.declare_builds()
         if not carrier.send_message(build.dumps(), 'builds.queue'):
@@ -189,8 +195,14 @@ class LaunchBuildGithubController(rest.RestController):
             build.username = user.username
             build.project_name = project.name
             build.create()
-            carrier = Carrier(pecan.conf.rabbit_server, pecan.conf.rabbit_port,
-                              pecan.conf.rabbit_db)
+            carrier = Carrier(
+                pecan.conf.rabbit_server,
+                pecan.conf.rabbit_port,
+                pecan.conf.rabbit_user,
+                pecan.conf.rabbit_password,
+                pecan.conf.rabbit_vhost,
+                pecan.conf.rabbit_db
+            )
             carrier.declare_queue('builds.queue')
             # carrier.declare_builds()
             if not carrier.send_message(build.dumps(), 'builds.queue'):
