@@ -48,7 +48,7 @@ class BuildController(rest.RestController):
         if user is None:
             return None
         project_name = pecan.request.context['project_name']
-        project = Project.fetch(user, project_name, sub_objects=False)
+        project = Project.fetch(user.username, project_name, sub_objects=False)
         if project is None:
             return None
         build_id = self.id_
@@ -87,8 +87,8 @@ class BuildsController(rest.RestController):
         project_name = pecan.request.context['project_name']
         user = User.fetch(pecan.request.context['username'], sub_objects=False)
         if user is None:
-            return user
-        project = Project.fetch(user, project_name, sub_objects=False)
+            return None
+        project = Project.fetch(user.username, project_name, sub_objects=False)
         if project is None:
             return None
         return project.get_builds()

@@ -44,7 +44,7 @@ class OutputController(rest.RestController):
         if user is None:
             return None
         project_name = pecan.request.context['project_name']
-        project = Project.fetch(user, project_name, sub_objects=False)
+        project = Project.fetch(user.username, project_name, sub_objects=False)
         if project is None:
             return None
         build_id = pecan.request.context['build_id']
@@ -78,7 +78,7 @@ class DownloadFileController(rest.RestController):
         if user is None:
             return None
         project_name = pecan.request.context['project_name']
-        project = Project.fetch(user, project_name, sub_objects=False)
+        project = Project.fetch(user.username, project_name, sub_objects=False)
         if project is None:
             return None
         build_id = pecan.request.context['build_id']
@@ -122,7 +122,7 @@ class DownloadArchiveController(rest.RestController):
         if user is None:
             return None
         project_name = pecan.request.context['project_name']
-        project = Project.fetch(user, project_name, sub_objects=False)
+        project = Project.fetch(user.username, project_name, sub_objects=False)
         if project is None:
             return None
         build_id = pecan.request.context['build_id']

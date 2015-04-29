@@ -43,7 +43,11 @@ class JobController(rest.RestController):
         """Returns log of a specific distro."""
         project_name = pecan.request.context['project_name']
         user = User.fetch(pecan.request.context['username'], sub_objects=False)
-        project = Project.fetch(user, project_name, sub_objects=False)
+        if user is None:
+            return None
+        project = Project.fetch(user.username, project_name, sub_objects=False)
+        if project is None:
+            return None
         build_id = pecan.request.context['build_id']
         if build_id in ["latest"]:
             build_id = project.get_latest_build_id()
@@ -63,7 +67,11 @@ class JobsController(rest.RestController):
         """Returns log of a specific distro."""
         project_name = pecan.request.context['project_name']
         user = User.fetch(pecan.request.context['username'])
-        project = Project.fetch(user, project_name, sub_objects=False)
+        if user is None:
+            return None
+        project = Project.fetch(user.username, project_name, sub_objects=False)
+        if project is None:
+            return None
         build_id = pecan.request.context['build_id']
         if build_id in ["latest"]:
             build_id = project.get_latest_build_id()
@@ -86,7 +94,7 @@ class LogController(rest.RestController):
         user = User.fetch(pecan.request.context['username'])
         if user is None:
             return None
-        project = Project.fetch(user, project_name)
+        project = Project.fetch(user.username, project_name)
         if project is None:
             return None
         build_id = pecan.request.context['build_id']

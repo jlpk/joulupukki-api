@@ -52,7 +52,7 @@ class ProjectController(rest.RestController):
     @wsme_pecan.wsexpose(Project, bool)
     def get(self, get_last_build=False):
         """Returns project"""
-        project = Project.fetch(self.user, self.project_name, get_last_build=get_last_build)
+        project = Project.fetch(self.user.username, self.project_name, get_last_build=get_last_build)
         return project
 
     # curl -X POST -H "Content-Type: application/json" -i  -d '{"name": "project"}' http://127.0.0.1:8081/v3/titilambert/myproject
@@ -75,7 +75,7 @@ class ProjectController(rest.RestController):
     @wsme_pecan.wsexpose(APIResult)
     def delete(self):
         """Delete project""" 
-        project = Project.fetch(self.user, self.project_name)
+        project = Project.fetch(self.user.username, self.project_name)
         if project is not None:
             if project.delete():
                 return APIResult(result="Project %s deleted" % self.project_name)
