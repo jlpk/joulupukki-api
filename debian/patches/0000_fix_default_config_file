@@ -9,3 +9,14 @@
          sys.argv.append(config_file_path)
      from pecan.commands import CommandRunner
      CommandRunner.handle_command_line()
+--- a/config.py
++++ b/config.py
+@@ -50,7 +50,7 @@
+ # Custom Configurations must be in Python dictionary format::
+ #
+ # foo = {'bar':'baz'}
+-workspace_path = '%(confdir)s/../output'
++workspace_path = '/var/lib/joulupukki/output'
+ 
+ rabbit_server = "127.0.0.1"
+ rabbit_port = 5672
