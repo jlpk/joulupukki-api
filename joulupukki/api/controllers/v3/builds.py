@@ -1,37 +1,26 @@
-from pecan import expose, redirect
+from pecan import expose
 import wsmeext.pecan as wsme_pecan
 import pecan
 from pecan import rest, abort
 
 import wsme.types as wtypes
 
-from wsme.types import File
 
 
-import zipfile
-import tarfile
-
-import glob
 import os
-import json
-import uuid
-import datetime
 import shutil
 import hmac
 import hashlib
 
-from io import BytesIO
 from joulupukki.common.datamodel.build import Build, APIBuild
 from joulupukki.common.datamodel.user import User
 from joulupukki.common.datamodel.project import Project
-from joulupukki.common.datamodel.job import Job
 from joulupukki.api.controllers.v3.jobs import JobsController
 from joulupukki.api.controllers.v3.download import DownloadController, OutputController
 from joulupukki.common.carrier import Carrier
 
 
 
-from joulupukki.common.distros import supported_distros, reverse_supported_distros
 
 
 

@@ -1,10 +1,13 @@
+import importlib
+
 import pecan
+
 from joulupukki.api.controllers.v3.users import UsersController
 from joulupukki.api.controllers.v3.projects import ProjectsController
 from joulupukki.api.controllers.v3.stats import StatsController
 from joulupukki.api.controllers.v3.auth import AuthController
-from joulupukki.api.controllers.v3.builds import LaunchBuildGithubController
 
+authcontroller = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth)
 
 class V3Controller(object):
     """Version 3 API controller root."""
@@ -12,5 +15,10 @@ class V3Controller(object):
     projects = ProjectsController()
     stats = StatsController()
     auth = AuthController()
-    githubbuild = LaunchBuildGithubController()
+    try:
+        webhookbuild = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).WebhookBuildController()
+    except Exception as exp:
+        #TODO
+        print(exp)
+        pass
 
