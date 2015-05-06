@@ -15,10 +15,11 @@ class V3Controller(object):
     projects = ProjectsController()
     stats = StatsController()
     auth = AuthController()
-    try:
-        webhookbuild = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).WebhookBuildController()
-    except Exception as exp:
-        #TODO
-        print(exp)
-        pass
+    if pecan.conf.auth is not None:
+        try:
+            webhookbuild = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).WebhookBuildController()
+        except Exception as exp:
+            #TODO
+            print(exp)
+            pass
 

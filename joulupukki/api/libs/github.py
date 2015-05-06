@@ -25,7 +25,7 @@ def get_access_token(code):
     params = parse_qs(data)
     access_token = params.get("access_token")
 
-    if len(access_token) > 0:
+    if access_token is not None and len(access_token) > 0:
         return access_token[0]
     return None
 
