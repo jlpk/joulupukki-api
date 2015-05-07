@@ -94,6 +94,7 @@ class EnableController(rest.RestController):
         """toogle project"""
         user = User.fetch(pecan.request.context['username'])
         project = Project.fetch(user.username, pecan.request.context['project_name'])
+        # Github or Gitlab
         new_state = github.toggle_project_webhook(user, project, access_token)
         if new_state is None:
             return {"result": "error"}
