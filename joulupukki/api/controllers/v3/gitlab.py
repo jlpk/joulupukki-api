@@ -10,7 +10,7 @@ from joulupukki.common.datamodel.build import Build
 from joulupukki.common.datamodel.user import User
 from joulupukki.common.datamodel.project import Project
 from joulupukki.common.carrier import Carrier
-from joulupukki.api.libs import github
+from joulupukki.api.libs import gitlab
 
 
 

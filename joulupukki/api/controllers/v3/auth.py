@@ -9,13 +9,19 @@ from pecan import rest
 
 from joulupukki.common.datamodel.user import User
 from joulupukki.api.libs import github
+from joulupukki.api.libs import gitlab
 
 class LoginController(rest.RestController):
 
     @wsme_pecan.wsexpose(unicode, unicode)
     def post(self, code):
-        # Github or gitlab
+        # Github
         return github.login(code)
+
+    @wsme_pecan.wsexpose(unicode, unicode, unicode)
+    def post(self, username, password):
+        # Gitlab
+        return gitlab.login(username, password)
 
 
 class AuthController(rest.RestController):
