@@ -17,7 +17,7 @@ class V3Controller(object):
     auth = AuthController()
     if pecan.conf.auth is not None:
         try:
-            webhookbuild = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).WebhookBuildController()
+            externalservice = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).ExternalServiceController()
         except Exception as exp:
             #TODO
             print(exp)

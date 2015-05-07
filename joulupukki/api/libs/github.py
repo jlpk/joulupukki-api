@@ -99,9 +99,11 @@ def get_user_orgs(username, access_token):
 
 
 def update_user_info_from_github(username, access_token):
-    user = User.fetch_from_github_token(access_token)
-    if user is None or user.username != username:
-        return False
+    user = User.fetch(username, with_password=False)
+    # TODO handle better access
+#    user = User.fetch_from_github_token(access_token)
+#    if user is None or user.username != username:
+#        return False
     # Get data from github
     gh_user = get_user(username, access_token)
     gh_repos = get_user_repos(username, access_token)
@@ -126,13 +128,14 @@ def update_user_info_from_github(username, access_token):
         # TODO get Project status (enable) from github
         # Save project
         project.update()
+    # Update user orgs
     user._save()
     return True
 
 
-def toggle_project_webjook(user, project, access_token):
+def toggle_project_webhook(user, project, access_token):
     # TODO put in confg
-    webhook_url = "http://jlpk.org"
+    webhook_url = "http://jlpk.org/v3/externalservice/build"
     
     url = "api.github.com"
     # Get webhook
@@ -172,13 +175,13 @@ def toggle_project_webjook(user, project, access_token):
               "insecure_ssl": '0',
              }
     params = {
-                               "name": "web",
-                               "config": config,
-                               "events": "push",
-                               "active": new_state,
-                               "client_id": pecan.conf.github_id,
-                               "client_secret": pecan.conf.github_secret,
-                              }
+              "name": "web",
+              "config": config,
+              "events": "push",
+              "active": new_state,
+              "client_id": pecan.conf.github_id,
+              "client_secret": pecan.conf.github_secret,
+              }
     conn.request("POST", url, json.dumps(params), headers)
     response = conn.getresponse()
     data = json.load(response)

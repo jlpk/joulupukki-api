@@ -3,14 +3,13 @@ import pecan
 from pecan import rest, abort
 
 import hmac
-import json
 import hashlib
 
 from joulupukki.common.datamodel.build import Build
 from joulupukki.common.datamodel.user import User
 from joulupukki.common.datamodel.project import Project
 from joulupukki.common.carrier import Carrier
-from joulupukki.api.libs import github
+
 
 
 
@@ -24,7 +23,7 @@ class WebhookBuildController(rest.RestController):
         if not body.get('sender'):
             abort(403)
 
-        user = User.fetch(body.get('repository').get('owner').get('login'))
+        user = User.fetch(body.get('sender').get('login'))
         if user is None:
             abort(403)
         # Check signature
@@ -37,7 +36,7 @@ class WebhookBuildController(rest.RestController):
             abort(403)
 
         if pecan.request.headers.get('X-Github-Event') == 'ping':
-            return json.dumps({"result": True, "event": "ping"})
+            return {"result": True , "event": "ping"}
 
         if pecan.request.headers.get('X-Github-Event') == 'push':
             if not body.get('repository'):
@@ -51,7 +50,7 @@ class WebhookBuildController(rest.RestController):
             if project is None:
                 # Error project doesn't exits
                 # Maybe We should create it
-                return json.dumps({"result": False , "error": "project not found"})
+                return {"result": False , "error": "project not found"}
             new_build = {"source_url": repository.get('clone_url'),
                          "source_type": "github",
                          "commit": repository.get('commit'),
@@ -76,42 +75,6 @@ class WebhookBuildController(rest.RestController):
             # carrier.declare_builds()
             if not carrier.send_message(build.dumps(), 'builds.queue'):
                 return None
-            return json.dumps({"result": True, "build": int(build.id_)})
+            return {"result": {"build": int(build.id_)}}
 
         abort(403)
-
-
-class SyncReposController(rest.RestController):
-    @expose()
-    def get(self, username):
-        """ launch build  from github webhook"""
-        access_token = pecan.request.GET.get('access_token')
-        if access_token:
-            # Check if this user exists in DB
-            # if not we need to create it
-            data = github.get_user(username, access_token)
-            if data:
-                # Save this new user
-                user = User({"username": data['login'],
-                             "name": data['name'],
-                             "github_url": data['html_url'],
-                             "email": data['email'],
-                             "token_github": access_token
-                             })
-                if not user.create():
-                    return None
-            return github.update_user_info_from_github(username, access_token)
-        return None
-
-class SyncOrgsController(rest.RestController):
-    @expose()
-    def get(self, username):
-        access_token = pecan.request.GET.get('access_token')
-        if access_token:
-            github.update_user_info_from_github(username, access_token)
-        return None
-
-class ExternalServiceController(rest.RestController):
-    build = WebhookBuildController()
-    syncuserrepos = SyncReposController()
-    syncuserorgs = SyncOrgsController()
