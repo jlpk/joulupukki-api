@@ -13,8 +13,6 @@ from joulupukki.common.carrier import Carrier
 from joulupukki.api.libs import github
 
 
-
-
 class WebhookBuildController(rest.RestController):
     @expose()
     def post(self):
@@ -23,8 +21,11 @@ class WebhookBuildController(rest.RestController):
         # Get user
         if not body.get('sender'):
             abort(403)
-
-        user = User.fetch(body.get('repository').get('owner').get('login'))
+        # Get username
+        username = body.get('repository').get('owner').get('name')
+        if username is None:
+            username = body.get('repository').get('owner').get('login')
+        user = User.fetch(username)
         if user is None:
             abort(403)
         # Check signature
@@ -36,9 +37,12 @@ class WebhookBuildController(rest.RestController):
         if not hmac.compare_digest(mac.hexdigest(), signature):
             abort(403)
 
+        # Ping event
         if pecan.request.headers.get('X-Github-Event') == 'ping':
             return json.dumps({"result": True, "event": "ping"})
 
+        # TODO handle tag event
+        # Push Event
         if pecan.request.headers.get('X-Github-Event') == 'push':
             if not body.get('repository'):
                 abort(403)
@@ -53,14 +57,16 @@ class WebhookBuildController(rest.RestController):
                 # Maybe We should create it
                 return json.dumps({"result": False , "error": "project not found"})
             new_build = {"source_url": repository.get('clone_url'),
-                         "source_type": "github",
+                         #"source_type": "github",
+                         "source_type": "git",
                          "commit": repository.get('commit'),
                          # TODO Find how decide if is a snapshot or not
+                         # Answer: on tag event => NOT
                          "snapshot": True,
                          # TODO Check if branch ~= ref
                          "branch": repository.get('ref'),
                          }
-            build = Build(send_build)
+            build = Build(new_build)
             build.username = user.username
             build.project_name = project.name
             build.create()
@@ -103,6 +109,7 @@ class SyncReposController(rest.RestController):
             return github.update_user_info_from_github(username, access_token)
         return None
 
+
 class SyncOrgsController(rest.RestController):
     @expose()
     def get(self, username):
@@ -110,6 +117,7 @@ class SyncOrgsController(rest.RestController):
         if access_token:
             github.update_user_info_from_github(username, access_token)
         return None
+
 
 class ExternalServiceController(rest.RestController):
     build = WebhookBuildController()
