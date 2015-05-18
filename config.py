@@ -70,6 +70,7 @@ github_id = "666ff51d51afc14ab79c"
 github_secret = "67c5dc2cf8dbb94c4d002ce08a406b64697e7265"
 # gitlab
 # gitlab_url
+gitlab_secure = False
 # gitlab_id
 # gitlab_secret
 

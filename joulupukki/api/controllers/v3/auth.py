@@ -21,7 +21,9 @@ class LoginController(rest.RestController):
     @wsme_pecan.wsexpose(unicode, unicode, unicode)
     def post(self, username, password):
         # Gitlab
-        return gitlab.login(username, password)
+        if username and password:
+            return gitlab.login(username, password)
+        return none
 
 
 class AuthController(rest.RestController):

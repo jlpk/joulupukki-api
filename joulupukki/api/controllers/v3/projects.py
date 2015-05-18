@@ -22,7 +22,7 @@ from joulupukki.common.datamodel.project import Project, APIProject
 from joulupukki.common.distros import supported_distros, reverse_supported_distros
 from joulupukki.api.controllers.v3.builds import BuildsController
 from joulupukki.api.controllers.v3.builds import LaunchBuildController
-from joulupukki.api.libs import github
+from joulupukki.api.libs import github, gitlab
 
 
 class ProjectsController(rest.RestController):
@@ -95,7 +95,11 @@ class EnableController(rest.RestController):
         user = User.fetch(pecan.request.context['username'])
         project = Project.fetch(user.username, pecan.request.context['project_name'])
         # Github or Gitlab
-        new_state = github.toggle_project_webhook(user, project, access_token)
+        new_state = None
+        if pecan.conf.auth == 'gitlab':
+            new_state = gitlab.toggle_project_webhook(user, project, access_token)
+        elif pecan.conf.auth == 'github':
+            new_state = github.toggle_project_webhook(user, project, access_token)
         if new_state is None:
             return {"result": "error"}
         return {"result": new_state}

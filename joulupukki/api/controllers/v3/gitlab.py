@@ -20,48 +20,44 @@ class WebhookBuildController(rest.RestController):
     def post(self):
         """ launch build  from github webhook"""
         body = pecan.request.json
-        # Get user
-        if not body.get('sender'):
+        # Get use
+        if not body.get('user_id'):
             abort(403)
 
-        user = User.fetch(body.get('repository').get('owner').get('login'))
-        if user is None:
-            abort(403)
-        # Check signature
-        signature = pecan.request.headers.get('X-Hub-Signature')
-        sha_name, signature = signature.split("=")
-        if sha_name != 'sha1':
-            abort(403)
-        mac = hmac.new(user.token.encode("utf-8"), pecan.request.text, digestmod=hashlib.sha1)
-        if not hmac.compare_digest(mac.hexdigest(), signature):
+        # Get token
+        token = pecan.request.GET.get('token')
+        if token is None:
             abort(403)
 
-        if pecan.request.headers.get('X-Github-Event') == 'ping':
-            return json.dumps({"result": True, "event": "ping"})
+        # Get project
+        project = Project.fetch_from_token(token, False)
+        if project is None:
+            abort(403)
+        if body.get('project_id') != project.gitlab_project_id:
+            abort(403)
 
-        if pecan.request.headers.get('X-Github-Event') == 'push':
+        if body.get('object_kind') not in ['push', 'tag']:
+            abort(403)
+
+        if body.get('object_kind') == 'push':
+
             if not body.get('repository'):
                 abort(403)
             repository = body.get('repository')
             project_name = repository.get('name')
-            if not project_name:
+            if project_name != project.name:
                 abort(403)
 
-            project = Project.fetch(user.username, project_name)
-            if project is None:
-                # Error project doesn't exits
-                # Maybe We should create it
-                return json.dumps({"result": False , "error": "project not found"})
-            new_build = {"source_url": repository.get('clone_url'),
-                         "source_type": "github",
-                         "commit": repository.get('commit'),
+            new_build = {"source_url": repository.get('git_http_url'),
+                         "source_type": "gitlab",
+                         "commit": body.get('after'),
                          # TODO Find how decide if is a snapshot or not
                          "snapshot": True,
                          # TODO Check if branch ~= ref
-                         "branch": repository.get('ref'),
+                         "branch": body.get('ref'),
                          }
-            build = Build(send_build)
-            build.username = user.username
+            build = Build(new_build)
+            build.username = project.username
             build.project_name = project.name
             build.create()
             carrier = Carrier(
@@ -84,23 +80,43 @@ class WebhookBuildController(rest.RestController):
 class SyncReposController(rest.RestController):
     @expose()
     def get(self, username):
-        """ launch build  from github webhook"""
+        """ launch build  from gitlab webhook"""
         access_token = pecan.request.GET.get('access_token')
         if access_token:
             # Check if this user exists in DB
-            # if not we need to create it
-            data = github.get_user(username, access_token)
-            if data:
-                # Save this new user
-                user = User({"username": data['login'],
-                             "name": data['name'],
-                             "github_url": data['html_url'],
-                             "email": data['email'],
-                             "token_github": access_token
-                             })
+            user = User.fetch(username)
+            if user is None:
+                # This user maybe a group
+                data = gitlab.get_group(username, access_token)
+                if data is not None:
+                    url = "http://%s/groups/%s" % (pecan.conf.gitlab_url, 
+                                                   data['name'])
+                    # Save this new group
+                    user = User({"username": data['name'],
+                                 "name": data['name'],
+                                 "gitlab_url": url,
+                                 "gitlab_group": True,
+                                 "id_gitlab": data['id'],
+                                 })
                 if not user.create():
                     return None
-            return github.update_user_info_from_github(username, access_token)
+                else:
+                    # if user doesn't exists and this is not a group
+                    # This request is strange so 403
+                    abort(403)
+            else:
+                # if not we need to create it
+                gitlab_user = gitlab.get_user(user.id_gitlab, access_token)
+                # Update user info
+                if gitlab_user:
+                    user.name = gitlab_user.get('name')
+                    user.email = gitlab_user.get('email')
+                    if not user.update():
+                        return None
+            if user.gitlab_group:
+                return gitlab.update_group_info_from_gitlab(user, access_token)
+            else:
+                return gitlab.update_user_info_from_gitlab(username, access_token)
         return None
 
 class SyncOrgsController(rest.RestController):
@@ -108,7 +124,7 @@ class SyncOrgsController(rest.RestController):
     def get(self, username):
         access_token = pecan.request.GET.get('access_token')
         if access_token:
-            github.update_user_info_from_github(username, access_token)
+            gitlab.update_user_info_from_gitlab(username, access_token)
         return None
 
 class ExternalServiceController(rest.RestController):
