@@ -5,7 +5,7 @@
      if len(sys.argv) <= 2:
          # set default file
 -        config_file_path = os.path.join(os.getcwd(), "config.py")
-+        config_file_path = os.path.join("/etc/joulupukki/api", "config.py")
++        config_file_path = "/etc/joulupukki/joulupukki-api.conf"
          sys.argv.append(config_file_path)
      from pecan.commands import CommandRunner
      CommandRunner.handle_command_line()
