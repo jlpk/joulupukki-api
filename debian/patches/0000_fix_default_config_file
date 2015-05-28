@@ -11,12 +11,12 @@
      CommandRunner.handle_command_line()
 --- a/config.py
 +++ b/config.py
-@@ -50,7 +50,7 @@
- # Custom Configurations must be in Python dictionary format::
- #
- # foo = {'bar':'baz'}
+@@ -57,7 +57,7 @@
+ 
+ # Working dir
+ # where all outputs are stored
 -workspace_path = '%(confdir)s/../output'
 +workspace_path = '/var/lib/joulupukki/output'
  
+ # Rabbitmq configuration
  rabbit_server = "127.0.0.1"
- rabbit_port = 5672
