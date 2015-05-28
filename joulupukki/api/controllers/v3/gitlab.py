@@ -94,8 +94,12 @@ class SyncReposController(rest.RestController):
                 # This user maybe a group
                 data = gitlab.get_group(username, access_token)
                 if data is not None:
-                    url = "http://%s/groups/%s" % (pecan.conf.gitlab_url, 
-                                                   data['name'])
+                    url = "%s/groups/%s" % (pecan.conf.gitlab_url,
+                                            data['name'])
+                    if pecan.conf.gitlab_secure:
+                        url = "https://"
+                    else:
+                        url = "http://"
                     # Save this new group
                     user = User({"username": data['name'],
                                  "name": data['name'],

@@ -44,8 +44,11 @@ def get_access_token(username, password):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({"login": username,
                                "password": password
                               })
@@ -62,8 +65,12 @@ def get_access_token(username, password):
 def get_user_from_token(access_token):
     # FIXME for gitlab
     url = pecan.conf.gitlab_url
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     headers = {}
     headers['Authorization'] = "token " + access_token
     params = urllib.urlencode({
@@ -78,8 +85,13 @@ def get_user_from_token(access_token):
 
 def get_user(user_id, access_token):
     url = pecan.conf.gitlab_url
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({
                                "private_token": access_token
                               })
@@ -92,8 +104,13 @@ def get_user(user_id, access_token):
 
 def get_group(group_name, access_token):
     url = pecan.conf.gitlab_url
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({
                                "private_token": access_token
                               })
@@ -106,10 +123,14 @@ def get_group(group_name, access_token):
 
 
 def get_user_repos(user_id, access_token):
-    
     url = pecan.conf.gitlab_url
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({
                                "private_token": access_token
                               })
@@ -123,8 +144,13 @@ def get_user_repos(user_id, access_token):
 
 def get_group_repos(group_id, access_token):
     url = pecan.conf.gitlab_url
-    #conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({
                                "private_token": access_token
                               })
@@ -139,8 +165,13 @@ def get_group_repos(group_id, access_token):
 def get_user_orgs(user_id, access_token):
     
     url = pecan.conf.gitlab_url
-#    conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     params = urllib.urlencode({
                                "private_token": access_token
                               })
@@ -224,8 +255,12 @@ def toggle_project_webhook(user, project, access_token):
     
     url = pecan.conf.gitlab_url
     # Get webhook
-#    conn = httplib.HTTPSConnection(url)
-    conn = httplib.HTTPConnection(url)
+    # Handle https and http
+    if gitlab_secure:
+        conn = httplib.HTTPSConnection(url)
+    else:
+        conn = httplib.HTTPConnection(url)
+
     auth_params = urllib.urlencode({
                                "private_token": access_token
                               })
