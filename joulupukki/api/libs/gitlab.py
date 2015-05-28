@@ -44,7 +44,7 @@ def get_access_token(username, password):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -66,7 +66,7 @@ def get_user_from_token(access_token):
     # FIXME for gitlab
     url = pecan.conf.gitlab_url
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -87,7 +87,7 @@ def get_user(user_id, access_token):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -106,7 +106,7 @@ def get_group(group_name, access_token):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -114,19 +114,22 @@ def get_group(group_name, access_token):
     params = urllib.urlencode({
                                "private_token": access_token
                               })
-    url = "/api/v3/groups/" + group_name + "?" + params
+    url = "/api/v3/groups?" + params
     conn.request("GET", url)
     response = conn.getresponse()
     if response.status >= 400:
         return None
-    return json.load(response)
-
+    all_groups = json.load(response)
+    groups = [g for g in all_groups if g.get('name') == group_name]
+    if len(groups) != 1:
+        return None
+    return groups[0]
 
 def get_user_repos(user_id, access_token):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -137,8 +140,9 @@ def get_user_repos(user_id, access_token):
     url = "/api/v3/projects?" + params
     conn.request("GET", url)
     response = conn.getresponse()
-    repos = json.load(response)
-    repos = [r for r in repos if r.get('namespace').get('id') == user_id]
+    all_repos = json.load(response)
+    repos = [r for r in all_repos if r.get('namespace').get('owner_id') == user_id]
+    repos += [r for r in all_repos if r.get('namespace').get('id') == user_id]
     return repos
 
 
@@ -146,7 +150,7 @@ def get_group_repos(group_id, access_token):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -167,7 +171,7 @@ def get_user_orgs(user_id, access_token):
     url = pecan.conf.gitlab_url
 
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
@@ -197,7 +201,7 @@ def update_user_info_from_gitlab(username, access_token):
     gl_orgs = get_user_orgs(username, access_token)
 
     # Update user data
-    user.email = gl_user['email']
+    user.email = gl_user.get('email')
     #user.github_url = gh_user['html_url']
     user.name = gl_user['name']
     user.orgs = [org['name'] for org in gl_orgs]
@@ -256,7 +260,7 @@ def toggle_project_webhook(user, project, access_token):
     url = pecan.conf.gitlab_url
     # Get webhook
     # Handle https and http
-    if gitlab_secure:
+    if pecan.conf.gitlab_secure:
         conn = httplib.HTTPSConnection(url)
     else:
         conn = httplib.HTTPConnection(url)
