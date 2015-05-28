@@ -4,6 +4,7 @@ import urllib
 import json
 
 import pecan
+import wsme.types as wtypes
 import wsmeext.pecan as wsme_pecan
 from pecan import rest
 
@@ -26,8 +27,17 @@ class LoginController(rest.RestController):
         return none
 
 
+class ActiveAuthController(rest.RestController):
+
+    @wsme_pecan.wsexpose(wtypes.text)
+    def get(self):
+        """ Return active authentications
+        Should be None, github ou gitlab
+        """
+        return {"result": {"active_auth": [pecan.conf.auth] }}
+
 class AuthController(rest.RestController):
 
     login = LoginController()
-
+    active = ActiveAuthController()
 

@@ -11,6 +11,8 @@ from joulupukki.common.datamodel.project import Project
 def login(username, password):
     """ Get username and access token from github """
     gitlab_userdata = get_access_token(username, password)
+    if gitlab_userdata is None:
+        return None
     access_token = gitlab_userdata.get('private_token')
 
     if access_token:
@@ -180,7 +182,7 @@ def update_user_info_from_gitlab(username, access_token):
                                "url": repo['web_url'],
                                })
             project.create()
-        # TODO get Project status (enable) from github
+        # TODO get Project status (webhook) (enable) from gitlab
         # Save project
         project.update()
     # Update user orgs
@@ -217,7 +219,7 @@ def update_group_info_from_gitlab(group, access_token):
 
 def toggle_project_webhook(user, project, access_token):
     # TODO put in confg
-    webhook_url = "http://jlpk.org/v3/externalservice/build"
+    webhook_url = pecan.conf.api_url + "/v3/externalservice/build"
     webhook_url += "?token=" + project.token
     
     url = pecan.conf.gitlab_url
@@ -246,10 +248,10 @@ def toggle_project_webhook(user, project, access_token):
     params = urllib.urlencode({
               "id": project.gitlab_project_id,
               "url": webhook_url,
-              "push_events": True,
-              "issues_events": False,
-              "merge_requests_events": False,
-              "tag_push_events": True,
+              "push_events": 1,
+              "issues_events": 0,
+              "merge_requests_events": 0,
+              "tag_push_events": 1,
               "private_token": access_token,
               })
     # Set url depending of create/update

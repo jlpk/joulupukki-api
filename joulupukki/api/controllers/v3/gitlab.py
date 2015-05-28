@@ -18,7 +18,7 @@ from joulupukki.api.libs import gitlab
 class WebhookBuildController(rest.RestController):
     @expose()
     def post(self):
-        """ launch build  from github webhook"""
+        """ launch build from gitlab webhook"""
         body = pecan.request.json
         # Get use
         if not body.get('user_id'):
@@ -39,7 +39,12 @@ class WebhookBuildController(rest.RestController):
         if body.get('object_kind') not in ['push', 'tag']:
             abort(403)
 
-        if body.get('object_kind') == 'push':
+        else:
+            # If it's a TAG event we DON'T make snaphot
+            snapshot = False
+            if body.get('object_kind') == 'push':
+                # If it's a PUSH event we make snapshot
+                snapshot = True
 
             if not body.get('repository'):
                 abort(403)
@@ -52,7 +57,7 @@ class WebhookBuildController(rest.RestController):
                          "source_type": "gitlab",
                          "commit": body.get('after'),
                          # TODO Find how decide if is a snapshot or not
-                         "snapshot": True,
+                         "snapshot": snapshot,
                          # TODO Check if branch ~= ref
                          "branch": body.get('ref'),
                          }
@@ -108,11 +113,12 @@ class SyncReposController(rest.RestController):
                 # if not we need to create it
                 gitlab_user = gitlab.get_user(user.id_gitlab, access_token)
                 # Update user info
-                if gitlab_user:
-                    user.name = gitlab_user.get('name')
-                    user.email = gitlab_user.get('email')
-                    if not user.update():
-                        return None
+                # TODO Disabled for now
+#                if gitlab_user:
+#                    user.name = gitlab_user.get('name')
+#                    user.email = gitlab_user.get('email')
+#                    if not user.update():
+#                        return None
             if user.gitlab_group:
                 return gitlab.update_group_info_from_gitlab(user, access_token)
             else:

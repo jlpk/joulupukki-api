@@ -49,23 +49,28 @@ logging = {
 
 # Custom Configurations must be in Python dictionary format::
 #
-# foo = {'bar':'baz'}
+
+
+# API url
+# This is used to connect github/gitlab
+api_url = "http://jlpk.org"
+
+# Working dir
+# where all outputs are stored
 workspace_path = '%(confdir)s/../output'
 
+# Rabbitmq configuration
 rabbit_server = "127.0.0.1"
 rabbit_port = 5672
 rabbit_db = "joulupukki"
 rabbit_user = "guest"
 rabbit_password = "guest"
 rabbit_vhost = "/"
+# Mongo configuration
 mongo_server = "127.0.0.1"
 mongo_port = 27017
 mongo_db = "joulupukki"
-# auth
-# auth = None
-# auth = "gitlab"
-auth = "github"
-# github
+# Authentication (None, "github", "gitlab")
 github_id = "666ff51d51afc14ab79c"
 github_secret = "67c5dc2cf8dbb94c4d002ce08a406b64697e7265"
 # gitlab
@@ -76,6 +81,8 @@ gitlab_secure = False
 
 
 
+# Probably this follow configuration is useless for api daemon...
+# Supported distro
 distros = (
     ("ubuntu_10.04", "ubuntu:10.04", "deb", "docker"),
     ("ubuntu_12.04", "ubuntu:12.04", "deb", "docker"),
