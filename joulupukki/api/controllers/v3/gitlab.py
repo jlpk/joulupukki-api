@@ -54,7 +54,8 @@ class WebhookBuildController(rest.RestController):
                 abort(403)
 
             new_build = {"source_url": repository.get('git_http_url'),
-                         "source_type": "gitlab",
+                         #"source_type": "gitlab",
+                         "source_type": "git",
                          "commit": body.get('after'),
                          # TODO Find how decide if is a snapshot or not
                          "snapshot": snapshot,
