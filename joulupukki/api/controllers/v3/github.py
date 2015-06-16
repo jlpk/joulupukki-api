@@ -16,7 +16,7 @@ from joulupukki.api.libs import github
 class WebhookBuildController(rest.RestController):
     @expose()
     def post(self):
-        """ launch build  from github webhook"""
+        """Launch build from github webhook"""
         body = pecan.request.json
         # Get user
         if not body.get('sender'):
@@ -113,13 +113,26 @@ class SyncReposController(rest.RestController):
 class SyncOrgsController(rest.RestController):
     @expose()
     def get(self, username):
+        """Sync users organisations"""
         access_token = pecan.request.GET.get('access_token')
         if access_token:
             github.update_user_info_from_github(username, access_token)
         return None
 
 
+
+class ClientIdController(rest.RestController):
+    
+    @expose()
+    def get(self):
+        """Get github client id"""
+        github_id = pecan.conf.get('github_id')
+        return json.dumps({"result": {"github_id": github_id}})
+
+
+
 class ExternalServiceController(rest.RestController):
     build = WebhookBuildController()
     syncuserrepos = SyncReposController()
     syncuserorgs = SyncOrgsController()
+    clientid = ClientIdController()

@@ -167,7 +167,7 @@ def update_user_info_from_github(username, access_token):
 
 def toggle_project_webhook(user, project, access_token):
     # TODO put in confg
-    webhook_url = "http://jlpk.org/v3/externalservice/build"
+    webhook_url = pecan.conf.api_url + "/v3/externalservice/build"
     
     url = "api.github.com"
     # Get webhook

@@ -109,9 +109,3 @@ class ProjectSubController(rest.RestController):
     builds = BuildsController()
     build = LaunchBuildController()
     enable = EnableController()
-
-
-
-
-
-

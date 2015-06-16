@@ -15,6 +15,7 @@ class V3Controller(object):
     projects = ProjectsController()
     stats = StatsController()
     auth = AuthController()
+    # Handle github and gitlab auth
     if pecan.conf.auth is not None:
         try:
             externalservice = importlib.import_module('joulupukki.api.controllers.v3.' + pecan.conf.auth).ExternalServiceController()

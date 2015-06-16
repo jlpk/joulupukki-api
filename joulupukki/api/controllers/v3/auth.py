@@ -14,16 +14,16 @@ from joulupukki.api.libs import gitlab
 
 class LoginController(rest.RestController):
 
-    @wsme_pecan.wsexpose(unicode, unicode)
-    def post(self, code):
-        # Github
-        return github.login(code)
-
     @wsme_pecan.wsexpose(unicode, unicode, unicode)
-    def post(self, username, password):
+    def post(self, username, password=""):
+        """Login using gitlab or github"""
         # Gitlab
         if username and password:
             return gitlab.login(username, password)
+        # Github
+        if username and password =="":
+            return github.login(username)
+
         return none
 
 

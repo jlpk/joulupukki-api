@@ -20,14 +20,11 @@ import shutil
 
 from io import BytesIO
 from joulupukki.common.datamodel.user import User, APIUser
-
-
 from joulupukki.api.controllers.v3.projects import ProjectController
 
 
 
 class UsersController(rest.RestController):
-
     @pecan.expose()
     def _lookup(self, username, *remainder):
         return UserController(username), remainder
