@@ -1,16 +1,8 @@
-from pecan import expose, redirect
-import wsmeext.pecan as wsme_pecan
-import pecan
-from pecan import rest
-
-import wsme.types as wtypes
-
-from wsme.types import File
-
-
+from io import BytesIO, RawIOBase
+from mimetypes import MimeTypes
+import StringIO
 import zipfile
 import tarfile
-
 import glob
 import os
 import json
@@ -18,15 +10,17 @@ import uuid
 import datetime
 import shutil
 
-from io import BytesIO, RawIOBase
+from pecan import expose, redirect
+import pecan
+from pecan import rest
+import wsmeext.pecan as wsme_pecan
+import wsme.types as wtypes
+
 from joulupukki.common.datamodel.build import Build, APIBuild
-import StringIO 
 from joulupukki.common.datamodel.user import User
 from joulupukki.common.datamodel.project import Project
 from joulupukki.common.datamodel.job import Job
 from joulupukki.api.controllers.v3.jobs import JobsController
-
-
 from joulupukki.common.distros import supported_distros, reverse_supported_distros
 
 
@@ -71,8 +65,8 @@ class OutputController(rest.RestController):
 
 class DownloadFileController(rest.RestController):
     # CURL -x GET http://127.0.0.1:8080/v3/users/titilambert/myproject/builds/113/download/file?distro=centos_7&filename=grafana-1.9.0-1kaji0.2.noarch.rpm
-    @wsme_pecan.wsexpose(File, unicode, unicode)
-    def get(self, distro=None, filename=None):
+    @pecan.expose(generic=True)
+    def get(self):
         """Download one output file"""
         user = User.fetch(pecan.request.context['username'], sub_objects=False)
         if user is None:
@@ -104,9 +98,15 @@ class DownloadFileController(rest.RestController):
             file_path = os.path.join(output_folder, filename)
             if not os.path.isfile(file_path):
                 return None
-            f = File(file_path)
+            # TODO clean the following lines
+            mime = MimeTypes()
+            contenttype, _ = mime.guess_type(file_path)
             headers.add("Content-Disposition", str("attachment;filename=%s" % filename))
-            return f
+            fhandler = open(file_path, 'r')
+            wsme_file = wtypes.File(filename=filename,
+                                    file=fhandler,
+                                    contenttype=contenttype)
+            return wsme_file.content
         return None
 
 
