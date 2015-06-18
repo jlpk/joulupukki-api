@@ -22,10 +22,10 @@ case "$1" in
     configure)
         ## Create user and group
         # Note: if the user exists, it's properties won't be changed (gid, home, shell)
-        adduser  --quiet --system --home /var/lib/joulupukki --no-create-home --group joulupukki
+        adduser  --quiet --system --home /var/lib/joulupukki --no-create-home --group joulupukki || true
 
         ## Create nagios group
-        addgroup --system joulupukki
+        addgroup --system joulupukki || true
 
         ## Create directories with proper permissions
         for i in /var/run/joulupukki /var/log/joulupukki /var/lib/joulupukki
