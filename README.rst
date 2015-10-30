@@ -60,3 +60,15 @@ Dev Env
 
   apt-get install rpm
   virtualenv --system-site-packages env
+  
+  
+Usage
+=====
+
+Syntax ::
+
+  curl -s -X POST -H "Content-Type: application/json" -i  -d '{ "source_url": "GIT URL OR PATH", "source_type": "[git|local]", "branch": "BRANCHNAME", ["snapshot": "true|false"], ["forced_distro": "DISTRO"]}' http://SERVERURL/v3/users/USER/PACKAGENAME/build
+
+Example ::
+
+  curl -s -X POST -H "Content-Type: application/json" -i  -d '{ "source_url": "https://github.com/kaji-project/kaji-project.git", "source_type": "git", "branch": "kaji"}' http://joulupukki.example.com/v3/users/example/kaji/build
